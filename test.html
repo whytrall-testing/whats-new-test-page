@@ -5,12 +5,16 @@
     <title>Test</title>
     <script>
         function call(action) {
-            window.jbCefQuery(action);
+            window.jbCefQuery({
+                       request: action,
+                       onSuccess: function(response) { /*...*/ },
+                       onFailure: function(errCode, errMsg) { /*...*/ }
+            });
         }
     </script>
 </head>
 <body>
-    <h1>What's New testing page</h1>
+    <h1>What's New testing page 2</h1>
     <ul>
         <li><a href="#" onclick="call('helloWorld')">helloWorld</a></li>
     </ul>
